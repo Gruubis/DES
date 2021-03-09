@@ -21,21 +21,37 @@ namespace DES_Algorithm
 
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox2.Text = EncryptData(textBox1.Text, textBox3.Text);
+            if(radioButton1.Checked == true)
+            textBox5.Text = EncryptData(textBox1.Text, textBox3.Text, true);
+            else
+                textBox5.Text = EncryptData(textBox1.Text, textBox3.Text, false);
         }
 
-        public string EncryptData(string strData, string strKey)
+        public string EncryptData(string strData, string strKey, bool EBC)
         {
-            byte[] key = { }; //Encryption Key   
+            byte[] key = new byte[8];
             byte[] IV = { 10, 20, 30, 40, 50, 60, 70, 80 };
             byte[] inputByteArray;
+            byte[] hash;
 
             try
             {
-                key = Encoding.UTF8.GetBytes(strKey);
-                // DESCryptoServiceProvider is a cryptography class defind in c#.  
+                MD5CryptoServiceProvider ha = new MD5CryptoServiceProvider();
+                hash = ha.ComputeHash(Encoding.ASCII.GetBytes(strKey));
+                for (int i = 0; i < 8; i++)
+                {
+                    key[i] = hash[i];
+                }
                 DESCryptoServiceProvider ObjDES = new DESCryptoServiceProvider();
-                inputByteArray = Encoding.UTF8.GetBytes(strData);
+                if (EBC == true)
+                {
+                    ObjDES.Mode = CipherMode.ECB;
+                }
+                else
+                {
+                    ObjDES.Mode = CipherMode.CBC;
+                }
+                    inputByteArray = Encoding.ASCII.GetBytes(strData);
                 MemoryStream Objmst = new MemoryStream();
                 CryptoStream Objcs = new CryptoStream(Objmst, ObjDES.CreateEncryptor(key, IV), CryptoStreamMode.Write);
                 Objcs.Write(inputByteArray, 0, inputByteArray.Length);
@@ -48,16 +64,29 @@ namespace DES_Algorithm
                 throw ex;
             }
         }
-        public string DecryptData(string strData, string strKey)
+        public string DecryptData(string strData, string strKey, bool EBC)
         {
-            byte[] key = { };// Key   
+            byte[] key = new byte[8];// Key   
             byte[] IV = { 10, 20, 30, 40, 50, 60, 70, 80 };
             byte[] inputByteArray = new byte[strData.Length];
-
+            byte[] hash;
             try
             {
-                key = Encoding.UTF8.GetBytes(strKey);
+                MD5CryptoServiceProvider ha = new MD5CryptoServiceProvider();
+                hash = ha.ComputeHash(Encoding.ASCII.GetBytes(strKey));
+                for (int i = 0; i < 8; i++)
+                {
+                    key[i] = hash[i];
+                }
                 DESCryptoServiceProvider ObjDES = new DESCryptoServiceProvider();
+                if (EBC == true)
+                {
+                    ObjDES.Mode = CipherMode.ECB;
+                }
+                else
+                {
+                    ObjDES.Mode = CipherMode.CBC;
+                }
                 inputByteArray = Convert.FromBase64String(strData);
 
                 MemoryStream Objmst = new MemoryStream();
@@ -65,7 +94,7 @@ namespace DES_Algorithm
                 Objcs.Write(inputByteArray, 0, inputByteArray.Length);
                 Objcs.FlushFinalBlock();
 
-                Encoding encoding = Encoding.UTF8;
+                Encoding encoding = Encoding.ASCII;
                 return encoding.GetString(Objmst.ToArray());
             }
             catch (Exception ex)
@@ -76,7 +105,10 @@ namespace DES_Algorithm
 
         private void button2_Click(object sender, EventArgs e)
         {
-            textBox1.Text = DecryptData(textBox2.Text, textBox3.Text);
+            if (radioButton1.Checked == true)
+                textBox6.Text = DecryptData(textBox2.Text, textBox4.Text, true);
+            else
+                textBox6.Text = DecryptData(textBox2.Text, textBox4.Text, false);
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
