@@ -24,38 +24,6 @@ namespace DES_Algorithm
             textBox2.Text = EncryptData(textBox1.Text, textBox3.Text);
         }
 
-    public string Encrypt(string key, string text)
-        {
-            DES des= DES.Create();
-            MD5 md5 = MD5.Create();
-            byte[] byteBuff;
-            byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(key));
-            des.Key = null;
-            des.Mode = CipherMode.ECB; //CBC, CFB
-            byteBuff = Encoding.UTF8.GetBytes(text);
-
-            string encoded =
-                Convert.ToBase64String(des.CreateEncryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
-            return encoded;
-        }
-        public string Decrypt(string text, string key)
-        {
-
-            DES des = DES.Create();
-            MD5 md5 = MD5.Create();
-
-            byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(key));
-            byte[] byteBuff;
-
-            des.Key = hash;
-            des.Mode = CipherMode.ECB; //CBC, CFB
-            byteBuff = Convert.FromBase64String(text);
-
-            string decoded =
-                Convert.ToBase64String(des.CreateDecryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
-            return decoded;
-  
-        }
         public string EncryptData(string strData, string strKey)
         {
             byte[] key = { }; //Encryption Key   
